@@ -1,2 +1,2 @@
-# vimfilesWIN
-git files for Windows
+# vimfiles
+`vim` files for Windows.
