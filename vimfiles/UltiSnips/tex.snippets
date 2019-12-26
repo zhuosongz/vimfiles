@@ -1,0 +1,328 @@
+priority -50
+global !p
+texMathZones = ['texMathZone'+x for x in ['A', 'AS', 'B', 'BS', 'C',
+'CS', 'D', 'DS', 'E', 'ES', 'F', 'FS', 'G', 'GS', 'H', 'HS', 'I', 'IS',
+'J', 'JS', 'K', 'KS', 'L', 'LS', 'DS', 'V', 'W', 'X', 'Y', 'Z']]
+
+# texIgnoreMathZones = ['texMathText','texRefZone','texStatement',
+# 						'texRefOption','texCRefZone','texRefGroup']
+# texMathZoneGroup
+texIgnoreMathZones = ['texMathText']
+
+texMathZoneIds = vim.eval('map('+str(texMathZones)+", 'hlID(v:val)')")
+texIgnoreMathZoneIds = vim.eval('map('+str(texIgnoreMathZones)+", 'hlID(v:val)')")
+
+ignore = texIgnoreMathZoneIds[0]
+
+def math():
+	synstackids = vim.eval("synstack(line('.'), col('.') - (col('.')>=2 ? 1 : 0))")
+	try:
+		first = next(
+            i for i in reversed(synstackids)
+            if i in texIgnoreMathZoneIds or i in texMathZoneIds
+        )
+		return first != ignore
+	except StopIteration:
+		return False
+endglobal
+
+
+
+
+extends texmath
+
+snippet align "align environment with number and labels" b
+\begin{align}
+	$1
+	\label{eq:${2:${VISUAL:label}}}
+\end{align}$0
+endsnippet
+
+
+snippet 'ttt' "\text{}" wr
+\text{$1}$0
+endsnippet
+
+context "math()"
+snippet ';2' "\sqrt{}" wrA
+\sqrt{$1}$0 
+endsnippet
+
+context "math()"
+snippet ";~" "\bar{}" wrA
+\tilde{$1}$0 
+endsnippet
+
+context "math()"
+snippet ";\^" "\bar{}" wrA
+\bar{$1}$0 
+endsnippet
+
+context "math()"
+snippet fr "\frac{}{}" w
+\frac{$1}{${2:${VISUAL:holder}}}$0
+endsnippet
+
+context "math()" 
+snippet 'int' "\int" wr
+\int_{$1}^{${2:${VISUAL:holder}}}$0
+endsnippet
+
+context "math()" 
+snippet cpp "\conep{}" w
+\conep{$1}{${2:${VISUAL:holder}}}$0
+endsnippet
+
+context "math()"
+snippet ';,' "\nonumber" wrA
+\nonumber 
+endsnippet
+
+
+snippet today "Insert today" 
+`date +%F`
+endsnippet
+
+context "math()" 
+snippet __ "_{}" iA
+_{$1}$0
+endsnippet
+
+context "math()" 
+snippet ^^ "^{}" iA
+^{$1}$0
+endsnippet
+
+
+context "math()" 
+snippet == "& = " wA
+& = $0
+endsnippet
+
+
+context "math()" 
+snippet // "\quad " wA
+\quad $0
+endsnippet
+
+
+context "math()" 
+snippet 'elab' "\label{eq:}" wrA
+\label{eq:$1}$0
+endsnippet
+
+snippet LLL "\label" w
+\label{$1}$0
+endsnippet
+
+snippet cqq "\cref{}" w
+\cref{$1}$0
+endsnippet
+
+
+snippet mk "Math" wA
+\(${1}\)$0
+endsnippet
+
+snippet dm "Math Display" bA 
+$$
+	$1
+$$
+$0 
+endsnippet
+
+snippet EAS "align* environment" bA
+\begin{align*}
+	$0
+\end{align*}
+endsnippet
+
+context "math()"
+snippet '([A-Za-z])([\d])' "auto subscript" wrA
+`!p snip.rv = match.group(1)`_`!p snip.rv = match.group(2)`$0
+endsnippet
+
+context "math()"
+snippet '([X,Y,Z,x,y,z])([X,Y,Z,x,y,z])([m,n,i,j])' "auto subscript" wrA
+`!p snip.rv = match.group(1)`_`!p snip.rv = match.group(3)`$0
+endsnippet
+
+context "math()"
+snippet '([A-Za-z])_(\d\d)' "auto subscript2" wrA
+`!p snip.rv = match.group(1)`_{`!p snip.rv = match.group(2)`}$0
+endsnippet
+
+
+
+context "math()" 
+snippet func "function map" 
+$1 : ${2:${VISUAL:holder}} \mapsto $0 
+endsnippet
+
+context "math()" 
+snippet abs "| . |" A
+\left\lvert $1 \right\rvert $0
+endsnippet
+
+context "math()" 
+snippet norm "|| . ||" A
+\left\lVert $1 \right\rVert $0
+endsnippet
+
+context "math()" 
+snippet max "\max" A
+\max_{$1}$0
+endsnippet
+
+context "math()" 
+snippet '(\d)([ijk])leq([mn])' "1 \leq i \leq n"  wrA
+`!p snip.rv = match.group(1)` \leq `!p snip.rv = match.group(2)` \leq `!p snip.rv =match.group(3)`$0
+endsnippet
+
+context "math()" 
+snippet '(\d)sum([a-zA-Z])([a-zA-Z])' "sum_1 \leq i \leq n"  wrA
+\sum_{`!p snip.rv = match.group(2)` = `!p snip.rv = match.group(1)`}^{`!p snip.rv=match.group(3)`}$0
+endsnippet
+
+
+#context "math()"
+snippet fcmd "{{{ ...  }}}" w
+% {{{ $1 
+% }}}
+$0 
+endsnippet
+
+
+
+global !p
+bracklist = {}
+bracklist['('] = ['(',')']
+bracklist['['] = ['[',']']
+bracklist['{'] = ['\{','\}']
+bracklist['|'] = ['\lvert ','\\rvert']
+bracklist['?'] = ['\lVert ','\\rVert']
+bracklist['<'] = ['\langle ','\\rangle']
+
+biglist = {}
+# biglist['a'] = ['', '']
+biglist['b'] = ['\\bigl', '\\bigr']
+biglist['B'] = ['\Bigl', '\Bigr']
+biglist['bb'] = ['\\biggl', '\\biggr']
+biglist['BB'] = ['\Biggl', '\Biggr']
+
+
+def checkEqualPara1(arglist):
+	if arglist(2)==arglist(1):
+		return bracklist[arglist(2)][0]
+	else:
+		return arglist(1)+arglist(2)
+def checkEqualPara2(arglist):
+	if arglist(2)==arglist(1):
+		return bracklist[arglist(2)][1]
+	else:
+		return ''
+endglobal
+context "math()"
+snippet "b([\(\[\{|?<])" "Description" irA
+\bigl`!p snip.rv = bracklist[match.group(1)][0]` ${0:Type the equation here} \bigr`!p snip.rv = bracklist[match.group(1)][1]`
+endsnippet
+context "math()"
+snippet "B([\(\[\{|?<])" "Description" irA
+\Bigl`!p snip.rv = bracklist[match.group(1)][0]` ${0:Type the equation here} \Bigr`!p snip.rv = bracklist[match.group(1)][1]`
+endsnippet
+context "math()"
+snippet "bb([\(\[\{|?<])" "Description" irA
+\bbigl`!p snip.rv = bracklist[match.group(1)][0]` ${0:Type the equation here} \bbigr`!p snip.rv = bracklist[match.group(1)][1]`
+endsnippet
+context "math()"
+snippet "BB([\(\[\{|?<])" "Description" irA
+\BBigl`!p snip.rv = bracklist[match.group(1)][0]` ${0:Type the equation here} \BBigr`!p snip.rv = bracklist[match.group(1)][1]`
+endsnippet
+context "math()"
+snippet 'n([\(\[\{|?])' "Description" irA
+`!p snip.rv = bracklist[match.group(1)][0]`$0`!p snip.rv = bracklist[match.group(1)][1]` 
+endsnippet
+
+clearsnippets b
+snippet "bb" "begin{} / end{}" br
+\begin{${1:something}}
+	${2:${VISUAL}}
+\end{$1}$0
+endsnippet
+
+
+# context "math()" 
+snippet {} "{}" iA
+{$1}$0
+endsnippet
+context "math()" 
+snippet () "()" iA
+($1)$0
+endsnippet
+context "math()" 
+snippet [] "[]" iA
+[$1]$0
+endsnippet
+
+snippet '([^ \t]*),f' "\command" wrA
+\\`!p snip.rv = match.group(1)`{$1}$0
+endsnippet
+
+snippet '([^ \t]*),z' "\environment" wrA
+\\begin{`!p snip.rv = match.group(1)`}
+$1
+\\end{`!p snip.rv = match.group(1)`}$0
+endsnippet
+
+
+context "math()"
+snippet ^s "^{[some thing]}" iA
+^{[$1]}$0
+endsnippet
+
+context "math()"
+snippet ^r "^{(some thing)}" iA
+^{($1)}$0
+endsnippet
+
+context "math()"
+snippet ^b "^{{some thing}}" iA
+^{\\{$1\\}}$0
+endsnippet
+
+
+context "math()"
+snippet ,. "\, ," wA
+\\, ${1:,}$0
+endsnippet
+context "math()"
+snippet ... "\dots" wA
+\dots$0 
+endsnippet
+
+
+context "math()"
+snippet suma "\sum_{}" w
+\sum_{$1}$0
+endsnippet
+
+snippet envir "add environment" 
+\begin{$1}
+	${VISUAL}
+\end{$1}$0
+endsnippet
+
+snippet epp "\IE" wA
+\IE \\{ ${1:equations} \\}$0
+endsnippet
+
+snippet é "item" w
+\item 
+endsnippet
+
+snippet 分数 "\frac" w
+\frac{$1}{$0}
+endsnippet
+
+
+# vim:ft=snippets:
