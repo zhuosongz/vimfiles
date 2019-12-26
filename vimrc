@@ -191,12 +191,11 @@ set columns=110
 
 if  has("win32")
 	set guioptions-=T              " 去除工具栏
-	" set guioptions-=m              " 去除顶部的菜单栏
 	set guioptions-=l              " 去除左边的滚动条
 	set guioptions-=L              " 去除左边的滚动条
-	" set guioptions-=r              " 去除右边的滚动条
-	" set guioptions-=R              " 去除右边的滚动条
-	set guifont=Consolas:h14       " 设置字体	
-	" set guifont=SimSun Regular:h14 
-    set backspace=indent,eol,start "better  backspace	
+	set guifont=Consolas:h14       " 设置字体
+    set backspace=indent,eol,start " better backspace
 endif
+" set guioptions-=m              " 去除顶部的菜单栏
+" set guioptions-=r              " 去除右边的滚动条
+" set guioptions-=R              " 去除右边的滚动条
